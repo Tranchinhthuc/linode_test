@@ -18,7 +18,8 @@ services:
     depends_on:
       - 'postgres'
       - 'redis'
-    build: .
+    image: 'tranthuc/linode_test_image:lastest'
+    # build: .
     ports:
       - '3000:3000'
     volumes:
@@ -26,28 +27,28 @@ services:
     env_file:
       - '.env'
 
-  sidekiq:
-    depends_on:
-      - 'postgres'
-      - 'redis'
-    build: .
-    command: sidekiq -C config/sidekiq.yml.erb
-    volumes:
-      - '.:/app'
-    env_file:
-      - '.env'
+  # sidekiq:
+  #   depends_on:
+  #     - 'postgres'
+  #     - 'redis'
+  #   build: .
+  #   command: sidekiq -C config/sidekiq.yml.erb
+  #   volumes:
+  #     - '.:/app'
+  #   env_file:
+  #     - '.env'
 
-  cable:
-    depends_on:
-      - 'redis'
-    build: .
-    command: puma -p 28080 cable/config.ru
-    ports:
-      - '28080:28080'
-    volumes:
-      - '.:/app'
-    env_file:
-      - '.env'
+  # cable:
+  #   depends_on:
+  #     - 'redis'
+  #   build: .
+  #   command: puma -p 28080 cable/config.ru
+  #   ports:
+  #     - '28080:28080'
+  #   volumes:
+  #     - '.:/app'
+  #   env_file:
+  #     - '.env'
 
 volumes:
   redis:

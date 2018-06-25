@@ -12,7 +12,7 @@ gem 'rails', '~> 5.2.0'
 gem 'puma', '~> 3.11'
 
 # Use Rack Timeout. Read more: https://github.com/heroku/rack-timeout
-gem 'rack-timeout', '~> 0.4'
+# gem 'rack-timeout', '~> 0.4'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.5'
@@ -21,10 +21,10 @@ gem 'jbuilder', '~> 2.5'
 gem 'pg', '~> 1.0'
 
 # Use Redis Rails to set up a Redis backed Cache and / or Session
-gem 'redis-rails', '~> 5.0'
+# gem 'redis-rails', '~> 5.0'
 
 # Use Sidekiq as a background job processor through Active Job
-gem 'sidekiq', '~> 5.1'
+# gem 'sidekiq', '~> 5.1'
 
 # Use Clockwork for recurring background tasks without needing cron
 # gem 'clockwork', '~> 2.0'
@@ -67,6 +67,11 @@ group :test do
 end
 
 group :development do
+  gem 'capistrano'
+  gem 'capistrano-bundler'
+  gem 'capistrano-rails'
+  gem 'capistrano-rails-console'
+  gem 'capistrano-rbenv'
   # Enable a debug toolbar to help profile your application
   gem 'rack-mini-profiler', '~> 1.0'
 

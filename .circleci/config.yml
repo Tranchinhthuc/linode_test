@@ -1,11 +1,11 @@
 references:
   build_config: &build_config
     machine: true
-    working_directory: ~/app
+    # working_directory: ~/owners
     environment:
-      - DOCKER_FILE: Dockerfile
+      - DOCKER_FILE: ./Dockerfile
       # - DOCKER_REPO_URL: 898944850488.dkr.ecr.ap-northeast-1.amazonaws.com
-      - APP_NAME: testCi
+      # - APP_NAME: owners
 
   # build_nginx_config: &build_nginx_config
   #   machine: true
@@ -24,112 +24,60 @@ references:
   #     - DOCKER_REPO_URL: 898944850488.dkr.ecr.ap-northeast-1.amazonaws.com
   #     - APP_NAME: owners-fluentd
 
-  # deployment_config: &deployment_config
-  #   machine: true
-  #   working_directory: ~/owners
-  #   environment:
-  #     - DOCKER_REPO_URL: 898944850488.dkr.ecr.ap-northeast-1.amazonaws.com
-  #     - CONTAINER_PORT: 80
-  #     - APP_NAME: owners
-  #     - WEB_NAME: owners-nginx
-  #     - LOG_NAME: owners-fluentd
-  #     - DEPLOYMENT_MAX_PERCENT: 200
-  #     - DEPLOYMENT_MIN_HEALTHY_PERCENT: 50
-  #     - TIMEOUT: 30
-  #     - BASE_ROLE_ARN: arn:aws:iam::898944850488:role
+  deployment_config: &deployment_config
+    machine: true
+    # working_directory: ~/owners
+    environment:
+      # - DOCKER_REPO_URL: 898944850488.dkr.ecr.ap-northeast-1.amazonaws.com
+      # - CONTAINER_PORT: 80
+      # - APP_NAME: owners
+      # - WEB_NAME: owners-nginx
+      # - LOG_NAME: owners-fluentd
+      # - DEPLOYMENT_MAX_PERCENT: 200
+      # - DEPLOYMENT_MIN_HEALTHY_PERCENT: 50
+      # - TIMEOUT: 30
+      # - BASE_ROLE_ARN: arn:aws:iam::898944850488:role
 
 version: 2
 jobs:
-  build:
+  test:
     <<: *build_config
-    working_directory: ~/app
+    working_directory: ~/owners
     steps:
-      # - checkout
-      - run:
-            # sudo apt-get install ssh
-            # ssh root@139.162.21.191
-          name: Deploy Over SSH
-          command: |
-            ls
+      - add_ssh_keys:
+          fingerprints:
+            - "1a:35:73:5c:4a:e8:fa:e2:5b:9c:42:f3:4a:0c:e5:49"
+      - checkout
+      - run: cp Gemfile.lock Gemfile.lock.cache_key
+      - restore_cache:
+          key: owners-{{ checksum "Gemfile.lock.cache_key" }}
+
+      - run: bundle install --path vendor/bundle
+      - run: bundle exec cap production deploy
 
   deploy:
-    machine:
-      enabled: true
-    working_directory: ~/app
+    <<: *build_config
+    # working_directory: ~/owners
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "1a:35:73:5c:4a:e8:fa:e2:5b:9c:42:f3:4a:0c:e5:49"
+      - checkout
+      - run: cp Gemfile.lock Gemfile.lock.cache_key
+      - restore_cache:
+          key: owners-{{ checksum "Gemfile.lock.cache_key" }}
+      # - run: bundle install --path vendor/bundle
+      # - run: bundle exec cap production deploy
+      # - run: cd /var/www/linode_test/current && kill $(lsof -t -i:8080)
       - run:
-            # ssh root@139.162.21.191 "bundle exec rails s"
-          name: Deploy Over SSH
           command: |
-            ls --all
-            bundle exec rails s
+              ssh root@139.162.21.191 "cat ~/.ssh/authorized_keys"
+      # - run: ssh root@139.162.21.191
+      # - run: cd /var/www/linode_test/current && bundle exec unicorn -E production
 
 workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build
-      - deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
-
-# version: 2
-# jobs:
-#   build:
-#     docker:
-#       # specify the version you desire here
-#        - image: circleci/ruby:2.4.1-node-browsers
-
-#       # Specify service dependencies here if necessary
-#       # CircleCI maintains a library of pre-built images
-#       # documented at https://circleci.com/docs/2.0/circleci-images/
-#       # - image: circleci/postgres:9.4
-
-#     working_directory: ~/repo
-
-#     steps:
-#       - checkout
-
-#       # Download and cache dependencies
-#       - restore_cache:
-#           keys:
-#           - v1-dependencies-{{ checksum "Gemfile.lock" }}
-#           # fallback to using the latest cache if no exact match is found
-#           - v1-dependencies-
-
-#       - run:
-#           name: install dependencies
-#           command: |
-#             bundle install --jobs=4 --retry=3 --path vendor/bundle
-
-#       - save_cache:
-#           paths:
-#             - ./vendor/bundle
-#           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
-
-#       # Database setup
-#       - run: bundle exec rake db:create
-#       - run: bundle exec rake db:migrate
-
-#       # run tests!
-#       - run:
-#           name: run tests
-#           command: |
-#             mkdir /tmp/test-results
-#             TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
-
-#             bundle exec rspec --format progress \
-#                             --format RspecJunitFormatter \
-#                             --out /tmp/test-results/rspec.xml \
-#                             --format progress \
-#                             $TEST_FILES
-
-#       # collect reports
-#       - store_test_results:
-#           path: /tmp/test-results
-#       - store_artifacts:
-#           path: /tmp/test-results
-#           destination: test-results
+      - deploy
+      # - test
