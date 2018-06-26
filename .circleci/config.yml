@@ -59,6 +59,9 @@ jobs:
     <<: *build_config
     # working_directory: ~/owners
     steps:
+      - checkout
+      - attach_workspace:
+          at: ~/app/linode_test
       - add_ssh_keys:
           fingerprints:
             - "1a:35:73:5c:4a:e8:fa:e2:5b:9c:42:f3:4a:0c:e5:49"
@@ -71,7 +74,7 @@ jobs:
       # - run: cd /var/www/linode_test/current && kill $(lsof -t -i:8080)
       - run:
           command: |
-              ssh root@139.162.21.191 "cat ~/.ssh/authorized_keys"
+              ssh root@139.162.21.191 "bash -x ~/app/deployment.sh"
       # - run: ssh root@139.162.21.191
       # - run: cd /var/www/linode_test/current && bundle exec unicorn -E production
 
