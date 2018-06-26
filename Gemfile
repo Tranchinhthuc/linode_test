@@ -67,11 +67,6 @@ group :test do
 end
 
 group :development do
-  gem 'capistrano'
-  gem 'capistrano-bundler'
-  gem 'capistrano-rails'
-  gem 'capistrano-rails-console'
-  gem 'capistrano-rbenv'
   # Enable a debug toolbar to help profile your application
   gem 'rack-mini-profiler', '~> 1.0'
 
