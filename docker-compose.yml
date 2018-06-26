@@ -18,8 +18,8 @@ services:
     depends_on:
       - 'postgres'
       - 'redis'
-    image: 'tranthuc/linode_test_image:lastest'
-    # build: .
+    # image: 'tranthuc/linode_test_image:lastest'
+    build: .
     ports:
       - '3000:3000'
     volumes:

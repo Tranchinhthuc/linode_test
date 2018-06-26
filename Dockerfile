@@ -12,4 +12,4 @@ COPY . .
 
 LABEL maintainer="Nick Janetakis <nick.janetakis@gmail.com>"
 
-CMD puma -C config/puma.rb -d
+CMD puma -C config/puma.rb
