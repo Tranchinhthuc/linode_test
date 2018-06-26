@@ -1,63 +1,20 @@
 references:
   build_config: &build_config
     machine: true
-    # working_directory: ~/owners
     environment:
       - DOCKER_FILE: ./Dockerfile
-      # - DOCKER_REPO_URL: 898944850488.dkr.ecr.ap-northeast-1.amazonaws.com
-      # - APP_NAME: owners
-
-  # build_nginx_config: &build_nginx_config
-  #   machine: true
-  #   working_directory: ~/owners
-  #   environment:
-  #     - DOCKER_FILE: Dockerfile.nginx
-  #     - DOCKER_REPO_URL: 898944850488.dkr.ecr.ap-northeast-1.amazonaws.com
-  #     - APP_NAME: owners-nginx
-  #     - APP_HOST: owners
-
-  # build_fluentd_config: &build_fluentd_config
-  #   machine: true
-  #   working_directory: ~/owners
-  #   environment:
-  #     - DOCKER_FILE: Dockerfile.fluentd
-  #     - DOCKER_REPO_URL: 898944850488.dkr.ecr.ap-northeast-1.amazonaws.com
-  #     - APP_NAME: owners-fluentd
-
-  deployment_config: &deployment_config
-    machine: true
-    # working_directory: ~/owners
-    environment:
-      # - DOCKER_REPO_URL: 898944850488.dkr.ecr.ap-northeast-1.amazonaws.com
-      # - CONTAINER_PORT: 80
-      # - APP_NAME: owners
-      # - WEB_NAME: owners-nginx
-      # - LOG_NAME: owners-fluentd
-      # - DEPLOYMENT_MAX_PERCENT: 200
-      # - DEPLOYMENT_MIN_HEALTHY_PERCENT: 50
-      # - TIMEOUT: 30
-      # - BASE_ROLE_ARN: arn:aws:iam::898944850488:role
 
 version: 2
 jobs:
   test:
     <<: *build_config
-    working_directory: ~/owners
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "1a:35:73:5c:4a:e8:fa:e2:5b:9c:42:f3:4a:0c:e5:49"
       - checkout
       - run: cp Gemfile.lock Gemfile.lock.cache_key
-      - restore_cache:
-          key: owners-{{ checksum "Gemfile.lock.cache_key" }}
 
       - run: bundle install --path vendor/bundle
-      - run: bundle exec cap production deploy
-
   deploy:
     <<: *build_config
-    # working_directory: ~/owners
     steps:
       - checkout
       - attach_workspace:
@@ -67,16 +24,9 @@ jobs:
             - "1a:35:73:5c:4a:e8:fa:e2:5b:9c:42:f3:4a:0c:e5:49"
       - checkout
       - run: cp Gemfile.lock Gemfile.lock.cache_key
-      - restore_cache:
-          key: owners-{{ checksum "Gemfile.lock.cache_key" }}
-      # - run: bundle install --path vendor/bundle
-      # - run: bundle exec cap production deploy
-      # - run: cd /var/www/linode_test/current && kill $(lsof -t -i:8080)
       - run:
           command: |
               ssh root@139.162.21.191 "bash -x ~/app/deployment.sh"
-      # - run: ssh root@139.162.21.191
-      # - run: cd /var/www/linode_test/current && bundle exec unicorn -E production
 
 workflows:
   version: 2
