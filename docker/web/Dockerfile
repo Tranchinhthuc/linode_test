@@ -13,7 +13,7 @@ ENV RAKE_ENV='production'
 COPY Gemfile Gemfile.lock ./
 RUN bundle install --binstubs
 
-COPY . .
+COPY . $RAILS_ROOT
 
 # RUN bundle exec rake assets:precompile
 EXPOSE 3000
